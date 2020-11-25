@@ -78,24 +78,4 @@ public class LoginController {
 	public String adminAccess() {
 		return "Viewing Admin content";
 	}
-	
-	/*
-	@PostMapping("/addAdmin")
-	@PreAuthorize("hasRole('SUPERADMIN')")
-	@ResponseStatus(HttpStatus.CREATED)
-	public Employee addUsers(@RequestBody Employee emp) {
-		Set<Role> roles = new HashSet<>();
-		Role adminRole = roleRepository.findByName("ROLE_USER")
-				.orElseThrow(() -> new RuntimeException("Error: Role not found."));
-		roles.add(adminRole);
-		emp.setRoles(roles);
-		String password = emp.generatePassword(8);
-		emp.setPassword(encoder.encode(password));
-		employeeRepository.save(emp);
-		return emp;
-
-	}
-	*/
-
-	
 }
