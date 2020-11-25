@@ -13,10 +13,6 @@ import com.miniProject.models.Employee;
 public interface EmployeeRepository extends JpaRepository<Employee, String> {
 	Optional<Employee> findByName(String name);
 	
-	@Query(value="select email from MiniProject.employee where id in"
-			+ "(select employee_id from MiniProject.employee_role where role_id =3)", nativeQuery=true)
-	List<String> getUserEmailId();
-	
 	@Query(value="select id, name, email from MiniProject.employee where id in"
 			+ "(select employee_id from MiniProject.employee_role where role_id =3)", nativeQuery=true)
 	List<String> getAdmins();
