@@ -36,10 +36,6 @@ public class Employee {
 	@JoinTable(name = "employee_role", joinColumns = @JoinColumn(name = "employee_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles = new HashSet<>();
 	
-	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "emp_questionnaire", joinColumns = @JoinColumn(name = "employee_id"), inverseJoinColumns = @JoinColumn(name = "questionnaire_id"))
-	private Set<Questionnaire> quest = new HashSet<>();
-
 	public Employee() {
 	}
 
@@ -110,14 +106,6 @@ public class Employee {
 
 	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
-	}
-	
-	public Set<Questionnaire> getQuest() {
-		return quest;
-	}
-
-	public void setQuest(Set<Questionnaire> quest) {
-		this.quest = quest;
 	}
 	
 	public String generatePassword(int length) {
