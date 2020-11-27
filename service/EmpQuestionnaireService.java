@@ -17,4 +17,9 @@ public class EmpQuestionnaireService {
 		repository.save(emp_ques);
 	}
 
+	public List<EmpQuestionnaire> findByQuestionnaireId(int questId) {
+		return repository.findByQuestionnaireId(questId);
+	}
+
+
 }

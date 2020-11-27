@@ -7,5 +7,7 @@ import com.miniProject.models.EmpQuestionnaire;
 
 @Repository
 public interface EmpQuestionnaireRepo extends JpaRepository<EmpQuestionnaire, Integer> {
+	@Query(value="select * from MiniProject.emp_questionnaire where quest_id =?",nativeQuery = true)
+	List<EmpQuestionnaire> findByQuestionnaireId(int questId);
 
 }
