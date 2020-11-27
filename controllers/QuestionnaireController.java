@@ -127,4 +127,67 @@ public class QuestionnaireController {
 				.body(resource);
 	}
 
+	
+	@PutMapping("/save/{questionnaire_id}")
+	@PreAuthorize("hasRole('SUPERADMIN') or hasRole('ADMIN')")
+	@ResponseStatus(HttpStatus.CREATED)
+	public Questionnaire saveQuestionnaire(@RequestBody Questionnaire quest, @PathVariable Integer questionnaire_id) {
+		quest.setQuestionnaireId(questionnaire_id);
+		questionnaireRepository.save(quest);
+		return quest;
+
+	}
+
+	@PostMapping("/publish/{questionnaire_id}")
+	@PreAuthorize("hasRole('SUPERADMIN') or hasRole('ADMIN')")
+	public String publish(@RequestBody List<Employee> employeeList, @PathVariable Integer questionnaire_id) {
+
+		try {
+			
+			Optional<Questionnaire> questionnaire = questionnaireRepository.findById(questionnaire_id);
+			Questionnaire quest = questionnaire.get();
+			for (Employee employee : employeeList) {
+				Set<Role> role = new HashSet<>();
+				Role userRole = roleRepository.findByName("ROLE_USER")
+						.orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+				role.add(userRole);
+				employee.setRoles(role);
+
+				String password = employee.generatePassword(8);
+				employee.setPassword(encoder.encode(password));
+				employeeRepository.save(employee);
+				
+				service.setData(quest.getQuestionnaireId(), employee.getId(), 0);
+
+				String subject = "Questionnaire " + quest.getQuestionnaireId();
+				String text = quest.getMailBody() + "\nPassword: " + password + "\nUsername: " + employee.getUsername();
+				notificationService.sendEmail(employee, subject, text);
+			}
+
+			return "Mail sent successfully";
+		} catch (MailException mailException) {
+			System.out.println(mailException);
+		}
+		return null;
+	}
+	@GetMapping("/generateReport/{questionnaire_id}")
+	@PreAuthorize("hasRole('SUPERADMIN') or hasRole('ADMIN')")
+	@ResponseStatus(HttpStatus.CREATED)
+	public List<Object> generateReport(@PathVariable int questionnaire_id) {
+		List<EmpQuestionnaire> list = service.findByQuestionnaireId(questionnaire_id);
+		List<Object> reports= new ArrayList<Object>();
+		for(EmpQuestionnaire emp_quest:list) {
+			String emp_id=emp_quest.getEmpId();
+			Optional<Employee> employee= employeeRepository.findById(emp_id);
+			String name = employee.get().getUsername();
+			int status=emp_quest.getStatus();
+			reports.add("Employee Id: "+emp_id+"  Username: "+name+"  Questionnaire Status: "+status);
+			 
+		}
+		return reports;
+		
+	}
+
+	
+
 }
