@@ -83,7 +83,7 @@ public class OptionController {
 	@GetMapping("/viewAdmin")
 	@PreAuthorize("hasRole('SUPERADMIN')")
 	@ResponseStatus(HttpStatus.OK)
-	public List<String> viewAdmin()
+	public List<Employee> viewAdmin()
 	{
 		return employeeRepository.getAdmins();
 		
@@ -92,7 +92,7 @@ public class OptionController {
 	@GetMapping("/viewSuperAdmin")
 	@PreAuthorize("hasRole('SUPERADMIN')")
 	@ResponseStatus(HttpStatus.OK)
-	public List<String> viewSuperAdmin()
+	public List<Employee> viewSuperAdmin()
 	{
 		return employeeRepository.getSuperAdmins();
 		
