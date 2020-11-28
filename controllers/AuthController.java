@@ -52,67 +52,22 @@ public class AuthController {
 
 	@PostMapping("/signin")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+		try {
+			Authentication authentication = authenticationManager.authenticate(
+					new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			String jwt = jwtUtils.generateJwtToken(authentication);
 
-		SecurityContextHolder.getContext().setAuthentication(authentication);
-		String jwt = jwtUtils.generateJwtToken(authentication);
+			UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+			List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+					.collect(Collectors.toList());
 
-		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-		List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
-				.collect(Collectors.toList());
-
-		return ResponseEntity.ok(
-				new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles));
-	}
-
-	@PostMapping("/signup")
-	public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-		if (employeeRepository.existsByName(signUpRequest.getUsername())) {
-			return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
+			return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(),
+					userDetails.getEmail(), roles));
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-
-		if (employeeRepository.existsByEmail(signUpRequest.getEmail())) {
-			return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
-		}
-
-		Employee employee = new Employee(signUpRequest.getId(), signUpRequest.getUsername(), signUpRequest.getEmail(),
-				encoder.encode(signUpRequest.getPassword()), signUpRequest.getImageUrl());
-
-		Set<String> strRoles = signUpRequest.getRole();
-		Set<Role> roles = new HashSet<>();
-
-		if (strRoles == null) {
-			Role userRole = roleRepository.findByName("ROLE_USER")
-					.orElseThrow(() -> new RuntimeException("Error: Role not found."));
-			roles.add(userRole);
-		} else {
-			strRoles.forEach(role -> {
-				switch (role) {
-				case "admin":
-					Role adminRole = roleRepository.findByName("ROLE_ADMIN")
-							.orElseThrow(() -> new RuntimeException("Error: Role not found."));
-					roles.add(adminRole);
-
-					break;
-				case "superAdmin":
-					Role superAdminRole = roleRepository.findByName("ROLE_SUPERADMIN")
-							.orElseThrow(() -> new RuntimeException("Error: Role not found."));
-					roles.add(superAdminRole);
-
-					break;
-				default:
-					Role userRole = roleRepository.findByName("ROLE_USER")
-							.orElseThrow(() -> new RuntimeException("Error: Role not found."));
-					roles.add(userRole);
-				}
-			});
-		}
-
-		employee.setRoles(roles);
-		employeeRepository.save(employee);
-
-		return ResponseEntity.ok(new MessageResponse("Employee registered successfully!"));
+		return null;
 	}
 }

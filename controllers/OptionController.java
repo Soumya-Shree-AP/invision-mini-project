@@ -102,7 +102,7 @@ public class OptionController {
 	@PreAuthorize("hasRole('SUPERADMIN')")
 	@ResponseStatus(HttpStatus.CREATED)
 	public Employee updateAdmin(@RequestBody Employee emp,@PathVariable String id) {
-		
+		try {
 		Set<Role> role = new HashSet<>();
 		Role adminRole = roleRepository.findByName("ROLE_ADMIN")
 				.orElseThrow(() -> new RuntimeException("Error: Role not found."));
@@ -113,13 +113,17 @@ public class OptionController {
 		emp.setPassword(encoder.encode(password));
 		employeeRepository.save(emp);
 		return emp;	
+		}catch(NoSuchElementException e) {
+			 e.printStackTrace();
+		 }
+		return null;
 	}	
 	
 	@PutMapping("/updateSuperAdmin/{id}")
 	@PreAuthorize("hasRole('SUPERADMIN')")
 	@ResponseStatus(HttpStatus.CREATED)
 	public Employee updateSuperAdmin(@RequestBody Employee emp,@PathVariable String id) {
-		
+		try {
 		Set<Role> role = new HashSet<>();
 		Role superAdminRole = roleRepository.findByName("ROLE_SUPERADMIN")
 				.orElseThrow(() -> new RuntimeException("Error: Role not found."));
@@ -130,6 +134,10 @@ public class OptionController {
 		emp.setPassword(encoder.encode(password));
 		employeeRepository.save(emp);
 		return emp;	
+		}catch(NoSuchElementException e) {
+			 e.printStackTrace();
+		 }
+		return null;
 	}
 	
 	@DeleteMapping("/deleteAdmin/{id}")

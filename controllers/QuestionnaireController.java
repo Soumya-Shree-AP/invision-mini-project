@@ -170,6 +170,7 @@ public class QuestionnaireController {
 		}
 		return null;
 	}
+
 	@GetMapping("/generateReport/{questionnaire_id}")
 	@PreAuthorize("hasRole('SUPERADMIN') or hasRole('ADMIN')")
 	@ResponseStatus(HttpStatus.CREATED)
@@ -186,7 +187,76 @@ public class QuestionnaireController {
 		}
 		return reports;
 		
+	@PostMapping("/remind/{questionnaire_id}")
+	@PreAuthorize("hasRole('SUPERADMIN') or hasRole('ADMIN')") 
+	public String reminder(@PathVariable Integer questionnaire_id) {
+
+		try {
+			Optional<Questionnaire> questionnaire = questionnaireRepository.findById(questionnaire_id);
+			Questionnaire quest = questionnaire.get();
+			List<String> list=repository.getEmployee(questionnaire_id);
+			for (int i=0;i<list.size();i++) {
+				Optional<Employee> employee = employeeRepository.findById(list.get(i));
+				Employee emp=employee.get();
+				
+
+				String password = emp.generatePassword(8);
+				emp.setPassword(encoder.encode(password));
+				employeeRepository.save(emp);
+				
+				String subject = "Pending to accept Questionnaire " + quest.getQuestionnaireId();
+				String text = quest.getMailBody() + "\nPassword: " + password + "\nUsername: " + emp.getUsername();
+				notificationService.sendEmail(emp, subject, text);
+			}
+
+			return "Mail sent successfully";
+		} catch (MailException mailException) {
+			System.out.println(mailException);
+		}
+		return null;
 	}
+
+	@GetMapping("/displayQuestionnaire/{questionnaire_id}")
+	@PreAuthorize("hasRole('SUPERADMIN') or hasRole('ADMIN')")
+	@ResponseStatus(HttpStatus.CREATED)
+	public Questionnaire display(@PathVariable Integer questionnaire_id) {
+		Optional<Questionnaire> questionnaire = questionnaireRepository.findById(questionnaire_id);
+		Questionnaire quest = questionnaire.get();	
+		return quest;
+	}
+	
+	@PutMapping("/accept/{questionnaire_id}/{id}")
+	@PreAuthorize("hasRole('SUPERADMIN') or hasRole('ADMIN') or hasRole('USER')")
+	@ResponseStatus(HttpStatus.CREATED)
+	public String agree(@PathVariable Integer questionnaire_id, @PathVariable String id) {
+		Optional<Employee> employee = employeeRepository.findById(id);
+		Employee emp = employee.get();
+		
+		Optional<Questionnaire> questionnaire = questionnaireRepository.findById(questionnaire_id);
+		Questionnaire quest = questionnaire.get();
+
+		service.setStatus(quest.getQuestionnaireId(), emp.getId(), 1);
+		
+		return "Thank you for accepting Terms and Conditions";
+
+	}
+	
+	@GetMapping("/completedQuestionnaire/{id}")
+	@PreAuthorize("hasRole('SUPERADMIN') or hasRole('ADMIN') or hasRole('USER')")
+	@ResponseStatus(HttpStatus.CREATED)
+	public List<String> completedQuestionnaire(@PathVariable String id) {
+		return service.getQuestionnaireStatus(id, 1);
+	}
+	
+	@GetMapping("/pendingQuestionnaire/{id}")
+	@PreAuthorize("hasRole('SUPERADMIN') or hasRole('ADMIN') or hasRole('USER')")
+	@ResponseStatus(HttpStatus.CREATED)
+	public List<String> pendingQuestionnaire(@PathVariable String id) {
+		return service.getQuestionnaireStatus(id, 0);
+	}
+
+}
+
 
 	
 
