@@ -10,4 +10,6 @@ public interface EmpQuestionnaireRepo extends JpaRepository<EmpQuestionnaire, In
 	@Query(value="select * from MiniProject.emp_questionnaire where quest_id =?",nativeQuery = true)
 	List<EmpQuestionnaire> findByQuestionnaireId(int questId);
 
+	@Query(value="select emp_id from MiniProject.emp_questionnaire where status_value =0 and quest_id =?",nativeQuery = true)
+	List<String> getEmployee(int questId);
 }
