@@ -1,8 +1,6 @@
 package com.miniProject.controllers;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -20,12 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.miniProject.models.Employee;
-import com.miniProject.models.Role;
 import com.miniProject.payload.request.LoginRequest;
-import com.miniProject.payload.request.SignupRequest;
 import com.miniProject.payload.response.JwtResponse;
-import com.miniProject.payload.response.MessageResponse;
 import com.miniProject.repository.EmployeeRepository;
 import com.miniProject.repository.RoleRepository;
 import com.miniProject.security.jwt.JwtUtils;
