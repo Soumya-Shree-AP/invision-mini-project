@@ -53,12 +53,6 @@ public class Employee {
 		this.email = email;
 		this.imageUrl = imageUrl;
 	}
-	
-	public Employee(String name, String email, String imageUrl) {
-		this.name = name;
-		this.email = email;
-		this.imageUrl = imageUrl;
-	}
 
 	public String getId() {
 		return id;
