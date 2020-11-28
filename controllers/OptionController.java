@@ -168,7 +168,7 @@ public class OptionController {
 	
 	@PutMapping("/changePassword")
 	@PreAuthorize("hasRole('SUPERADMIN') or hasRole('ADMIN')" )
-	public String changennPassword(@RequestParam("Password") String password, @RequestParam("Re-enter") String password1) {
+	public String changePassword(@RequestParam("Password") String password, @RequestParam("Re-enter") String password1) {
 	    Employee emp = employeeService.findUserByName(SecurityContextHolder.getContext().getAuthentication().getName());
 	    if(password.equals(password1)) {
 	    	emp.setPassword(encoder.encode(password));
